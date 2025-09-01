@@ -2,6 +2,10 @@
 
 Implémenter ces traits modifie la sémantique d'exécution du langage.
 
+## Trait `Copy`
+
+<!-- à supprimer si on n'a rien à dire sur ce trait au niveau de la sécurité -->
+
 ## Trait `Drop` : le destructeur
 
 Les types implémentent le trait `std::ops::Drop` dans le but d'effectuer

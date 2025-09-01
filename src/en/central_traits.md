@@ -1,5 +1,7 @@
 # Central traits
 
+## `Copy` trait
+
 ## `Drop` trait, the destructor
 
 Types implement the trait `std::ops::Drop` to perform some operations when the
