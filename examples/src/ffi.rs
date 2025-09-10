@@ -133,7 +133,7 @@ struct RawFoo {
     _private: [u8; 0],
 }
 
-/// Private “raw” C API
+// Private “raw” C API
 unsafe extern "C" {
     fn foo_create() -> *mut RawFoo;
     fn foo_do_something(this: *const RawFoo);
