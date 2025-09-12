@@ -25,17 +25,14 @@ an early memory reclamation that calls associated destructors when needed,
 `forget` skips any call to the destructors.
 
 ```rust
-let pair = ('↑', 0xBADD_CAFEu32);
-drop(pair); // here `forget` would be equivalent (no destructor to call)
+{{#include ../../../examples/src/memory.rs:drop_example}}
 ```
 
 Both functions are **memory safe** in Rust. However, `forget` will make any
 resource managed by the value unreachable and unclaimed.
 
 ```rust
-# use std::mem::forget;
-let s = String::from("Hello");
-forget(s); // Leak memory
+{{#include ../../../examples/src/memory.rs:forget_example}}
 ```
 
 In particular, using `forget` may result in not releasing critical resources,
@@ -113,9 +110,7 @@ raw pointers must be done manually without Rust guaranties.
 > `from_raw` to allow for their reclamation.
 >
 > ```rust
-> let boxed = Box::new(String::from("Crab"));
-> let raw_ptr = unsafe { Box::into_raw(boxed) };
-> let _ = unsafe { Box::from_raw(raw_ptr) }; // will be freed
+> {{#include ../../../examples/src/memory.rs:raw_pointer}}
 > ```
 
 The converse is also true! That is, `from_raw` should be call **only** on `into_raw`ed value. For instance,
@@ -134,16 +129,7 @@ and, for `Box` smart pointers, conversion of C pointers into `Box` is [discourag
 > complicated than re-boxing the raw pointer and should be avoided:
 >
 > ```rust
-> // Excerpt from the standard library documentation
-> use std::alloc::{dealloc, Layout};
-> use std::ptr;
->
-> let x = Box::new(String::from("Hello"));
-> let p = Box::into_raw(x);
-> unsafe {
->     ptr::drop_in_place(p);
->     dealloc(p as *mut u8, Layout::new::<String>());
-> }
+> {{#include ../../../examples/src/memory.rs:into_raw}}
 > ```
 >
 > Because the other types (`Rc` and `Arc`) are opaque and more complex, manual
@@ -181,25 +167,7 @@ Combining [interior mutability](https://doc.rust-lang.org/reference/interior-mut
 The following example shows such a memory leak in safe Rust:
 
 ```rust
-use std::{cell::Cell, rc::Rc};
-
-struct LinkedStruct {
-    other: Cell<Option<Rc<LinkedStruct>>>,
-}
-
-fn main() {
-    println!("Hello, world!");
-    let a = Rc::new(LinkedStruct {
-        other: Cell::new(None),
-    });
-    let b = Rc::new(LinkedStruct {
-        other: Cell::new(None),
-    });
-    let aa = a.clone();
-    let bb = b.clone();
-    a.other.set(Some(bb));
-    b.other.set(Some(aa));
-}
+{{#include ../../../examples/src/memory.rs:cyclic}}
 ```
 
 Memory leak is shown with `valgrind`:
