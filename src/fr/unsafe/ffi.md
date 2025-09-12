@@ -396,15 +396,15 @@ alternatives possibles :
   `Option`, accompagnée d'un test contre la valeur nulle :
 
   
-```rust,noplaypen
-{{#include ../../../examples/src/ffi.rs:function_pointers}}
-```
+  ```rust,noplaypen
+  {{#include ../../../examples/src/ffi.rs:function_pointers}}
+  ```
 
-Du côté C :
+  Du côté C :
 
-```c
-{{#include ../../../examples/src/ffi.c:function_pointers}}
-```
+  ```c
+  {{#include ../../../examples/src/ffi.c:function_pointers}}
+  ```
 
 - l'utilisation de pointeurs *bruts* avec une transformation `unsafe` vers un
   type pointeur de fonction, permettant des tests plus poussés au prix de

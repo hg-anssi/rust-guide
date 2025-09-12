@@ -14,6 +14,22 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        mdbook-custom = pkgs.rustPlatform.buildRustPackage (finalAttrs: rec {
+          pname = "mdBook";
+          version = "0.4.52";
+
+          src = pkgs.fetchFromGitHub {
+            owner = "hg-anssi";
+            repo = pname;
+            rev = "c5a35b9296c6d5e48570e30022bd69403050a9f4";
+            hash = "sha256-2pUzx5woxGsLu9SMID1u7AufAwa1C7tATln4binTPek=";
+          };
+
+          cargoLock = {
+            lockFile = "${src}/Cargo.lock";
+          };
+
+        });
         mdbook-checklist = pkgs.rustPlatform.buildRustPackage (finalAttrs: rec {
           pname = "mdbook-checklist";
           version = "0.1.1";
@@ -39,7 +55,7 @@
             owner = "daviddrysdale";
             repo = pname;
             tag = "v${version}";
-            hash = "sha256-7/IRNylcf2sziJQsANc3z5/Pz8Vc3Fe0fB7rp8RL9Y0=";
+            hash = "sha256-c6rBVeet2wVuW6LFed/TOM1ZevomlzSlSFY4gr5Iv0A=";
           };
 
           cargoLock = {
@@ -51,7 +67,8 @@
       {
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
-            mdbook0421.legacyPackages.${system}.mdbook
+            #mdbook0421.legacyPackages.${system}.mdbook
+            mdbook-custom
             bash
             mdbook-checklist
             mdbook-shiftinclude

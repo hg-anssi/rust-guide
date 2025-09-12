@@ -362,15 +362,15 @@ possibilities:
 
 - use `Option`-wrapped function pointer and check against `null`:
 
-```rust,noplaypen
-{{#include ../../../examples/src/ffi.rs:function_pointers}}
-```
+  ```rust,noplaypen
+  {{#include ../../../examples/src/ffi.rs:function_pointers}}
+  ```
 
-On the C side:
+  On the C side:
 
-```c
-{{#include ../../../examples/src/ffi.c:function_pointers}}
-```
+  ```c
+  {{#include ../../../examples/src/ffi.c:function_pointers}}
+  ```
 
 - use raw pointers with an `unsafe` transmutation to the function pointer type,
   allowing more powerful checks at the cost of ergonomics.
