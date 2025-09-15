@@ -336,10 +336,10 @@ If a difference is detected, compilation fails:</p>
 
 this could be indicative of a few possible errors:
 
-    * the lock file is corrupt
-    * a replacement source in use (e.g., a mirror) returned a different checksum
-    * the source itself may be corrupt in one way or another
-
+   * the lock file is corrupt
+   * a replacement source in use (e.g., a mirror) returned a different checksum
+   * the source itself may be corrupt in one way or another
+   
 unable to verify that `sha256 v1.6.0` is the same as when the lockfile was generated
 </code></pre>
 <p>When the <code>Cargo.lock</code> file is missing, it is generated on first build and records the
@@ -585,33 +585,33 @@ or the <code>overflowing_&lt;op&gt;</code> and <code>wrapping_&lt;op&gt;</code> 
 use std::panic;
 
 fn use_integer() {
-    let x: u8 = 242;
-
-    let result = panic::catch_unwind(|| {
-        println!("{}", x + 50); // panics in debug, prints 36 in release.
-    });
-    if result.is_err() {
-        println!("panic");
-    }
-    // always prints 36.
-    println!("{}", x.overflowing_add(50).0);
-    // always prints 36.
-    println!("{}", x.wrapping_add(50));
-    // always prints 36.
-    println!("{}", Wrapping(x) + Wrapping(50));
-
-    // always panics:
-    let (res, c) = x.overflowing_add(50);
-    let result = panic::catch_unwind(|| {
-        if c {
-            panic!("custom error");
-        } else {
-            println!("{}", res);
-        }
-    });
-    if result.is_err() {
-        println!("panic");
-    }
+   let x: u8 = 242;
+   
+   let result = panic::catch_unwind(|| {
+      println!("{}", x + 50); // panics in debug, prints 36 in release.
+   });
+   if result.is_err() {
+      println!("panic");
+   }
+   // always prints 36.
+   println!("{}", x.overflowing_add(50).0);
+   // always prints 36.
+   println!("{}", x.wrapping_add(50));
+   // always prints 36.
+   println!("{}", Wrapping(x) + Wrapping(50));
+   
+   // always panics:
+   let (res, c) = x.overflowing_add(50);
+   let result = panic::catch_unwind(|| {
+      if c {
+         panic!("custom error");
+      } else {
+         println!("{}", res);
+      }
+   });
+   if result.is_err() {
+      println!("panic");
+   }
 }
 <span class="boring">}</span></code></pre></pre>
 <blockquote>
@@ -832,32 +832,31 @@ It could be used to implement a custom <code>Vec</code> type.</p>
 </span>use std::ptr;
 
 pub struct Vec&lt;T&gt; {
-    ptr: *mut T,
-    len: usize,
-    cap: usize,
+   ptr: *mut T,
+   len: usize,
+   cap: usize,
 }
 
 // Note this implementation does not correctly handle zero-sized types.
 impl&lt;T&gt; Vec&lt;T&gt; {
-    pub fn push(&amp;mut self, elem: T) {
-        if self.len == self.cap { /* reallocate new array with bigger capacity */ }
-        unsafe {
-            ptr::write(self.ptr.add(self.len), elem);
-            self.len += 1;
-        }
-    }
+   pub fn push(&amp;mut self, elem: T) {
+      if self.len == self.cap { /* reallocate new array with bigger capacity */ }
+      unsafe {
+         ptr::write(self.ptr.add(self.len), elem);
+         self.len += 1;
+      }
+   }
 }
-
 <span class="boring">}</span></code></pre></pre>
 <p>Soundness and safety of this code rely on the fact that bytes from address <code>self.ptr</code> to <code>self.ptr + self.cap * size_of&lt;T&gt;()</code> are allocated.</p>
 <p>This invariant can be broken with <em>safe</em> code. For instance</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl&lt;T&gt; Vec&lt;T&gt; {
-    fn make_room(&amp;mut self) {
-        // grow the capacity
-        self.cap += 1;
-    }
+   fn make_room(&amp;mut self) {
+      // grow the capacity
+      self.cap += 1;
+   }
 }
 <span class="boring">}</span></code></pre></pre>
 <p>This function may be necessary for internal use, but it should not be exposed in the API, or it should be marked with the <code>unsafe</code> keyword, because its use can lead to UB.</p>
@@ -874,27 +873,27 @@ This API could require implementing the following trait:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>trait Locatable {
-    /// Find object of type `Self` in the buffer `buf`.
-    /// Returns the index of the first byte representing
-    /// an object of type `Self`
-    fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt;;
+   /// Find object of type `Self` in the buffer `buf`.
+   /// Returns the index of the first byte representing
+   /// an object of type `Self`
+   fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt;;
 }
 
 fn find&lt;T: Locatable&gt;(buf: &amp;[u8]) -&gt; Option&lt;T&gt; {
-    let start = T::locate_instance_into(buf)?;
-    unsafe {
-        let ptr: *const T = buf.as_ptr().add(start).cast();
-        Some(ptr.read_unaligned())
-    }
+   let start = T::locate_instance_into(buf)?;
+   unsafe {
+      let ptr: *const T = buf.as_ptr().add(start).cast();
+      Some(ptr.read_unaligned())
+   }
 }
 <span class="boring">}</span></code></pre></pre>
 <p>This trait can be implemented <strong>without</strong> using <code>unsafe</code>.</p>
 <p>For instance, the <code>bool</code> type can implement this trait as follows:</p>
-<pre><code class="language-rust ignore">    impl Locatable for bool {
-        fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt; {
-            buf.iter().position(|u| *u == 0 || *u == 1)
-        }
-    }</code></pre>
+<pre><code class="language-rust ignore">impl Locatable for bool {
+   fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt; {
+      buf.iter().position(|u| *u == 0 || *u == 1)
+   }
+}</code></pre>
 <div class="warning">
 <p>This implementation is harmful for two reasons:</p>
 <ul>
@@ -905,43 +904,43 @@ fn find&lt;T: Locatable&gt;(buf: &amp;[u8]) -&gt; Option&lt;T&gt; {
 <p>For instance, the following <code>Locatable</code> implementation is incorrect, <strong>but</strong> it is the responsibility of the API author to take it into account.</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>    impl Locatable for bool {
-        fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt; {
-            buf.iter().position(|u| *u == 0 || *u == 1).map(|n| n + 100)
-        }
-    }
+</span>impl Locatable for bool {
+   fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt; {
+      buf.iter().position(|u| *u == 0 || *u == 1).map(|n| n + 100)
+   }
+}
 <span class="boring">}</span></code></pre></pre>
 <p>The following program produces UB.</p>
-<pre><code class="language-rust ignore">    fn use_locatable() {
-        let buf = [4, 1, 99];
-        let located_bool: Option&lt;bool&gt; = find(&amp;buf); // UB here!
-        println!("{:?}", located_bool)
-    }</code></pre>
+<pre><code class="language-rust ignore">fn use_locatable() {
+   let buf = [4, 1, 99];
+   let located_bool: Option&lt;bool&gt; = find(&amp;buf); // UB here!
+   println!("{:?}", located_bool)
+}</code></pre>
 <p>The UB-detecting tool <code>miri</code> reports the following:</p>
 <pre><code class="language-default">$ cargo +nightly miri r --bin overflow
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
-     Running `/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo-miri runner target/miri/x86_64-unknown-linux-gnu/debug/overflow`
+   Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+      Running `/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo-miri runner target/miri/x86_64-unknown-linux-gnu/debug/overflow`
 error: Undefined Behavior: in-bounds pointer arithmetic failed: attempting to offset pointer by 101 bytes, but got alloc249 which is only 3 bytes from the end of the allocation
-  --&gt; src/overflow.rs:16:29
-   |
+   --&gt; src/overflow.rs:16:29
+      |
 16 |         let ptr: *const T = buf.as_ptr().add(start).cast();
    |                             ^^^^^^^^^^^^^^^^^^^^^^^ Undefined Behavior occurred here
    |
    = help: this indicates a bug in the program: it performed an invalid operation, and caused Undefined Behavior
    = help: see https://doc.rust-lang.org/nightly/reference/behavior-considered-undefined.html for further information
 help: alloc249 was allocated here:
-  --&gt; src/overflow.rs:22:9
-   |
+   --&gt; src/overflow.rs:22:9
+      |
 22 |     let buf = [4, 1, 99];
    |         ^^^
    = note: BACKTRACE (of the first span):
    = note: inside `find::&lt;bool&gt;` at src/overflow.rs:16:29: 16:52
 note: inside `main`
-  --&gt; src/overflow.rs:23:38
-   |
+   --&gt; src/overflow.rs:23:38
+      |
 23 |     let located_bool: Option&lt;bool&gt; = find(&amp;buf); // UB here!
    |                                      ^^^^^^^^^^
-
+   
 note: some details are omitted, run with `MIRIFLAGS=-Zmiri-backtrace=full` for a verbose backtrace
 
 error: aborting due to 1 previous error
@@ -980,15 +979,15 @@ an early memory reclamation that calls associated destructors when needed,
 <code>forget</code> skips any call to the destructors.</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>    let pair = ('↑', 0xBADD_CAFEu32);
-    drop(pair);
+</span>let pair = ('↑', 0xBADD_CAFEu32);
+drop(pair);
 <span class="boring">}</span></code></pre></pre>
 <p>Both functions are <strong>memory safe</strong> in Rust. However, <code>forget</code> will make any
 resource managed by the value unreachable and unclaimed.</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>    let s = String::from("Hello");
-    forget(s); // Leak memory
+</span>let s = String::from("Hello");
+forget(s); // Leak memory
 <span class="boring">}</span></code></pre></pre>
 <p>In particular, using <code>forget</code> may result in not releasing critical resources,
 leading to deadlocks or not erasing sensitive data from the memory. This is why
@@ -1055,11 +1054,14 @@ of smart pointers <code>Box</code>, <code>Rc</code>, <code>Arc</code> or <code>W
 <code>from_raw</code> to allow for their reclamation.</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>    let boxed = Box::new(String::from("Crab"));
+</span>let boxed = Box::new(String::from("Crab"));
 <span class="boring">}</span></code></pre></pre>
 </blockquote>
-<pre><code>let raw_ptr = unsafe { Box::into_raw(boxed) };
-let _ = unsafe { Box::from_raw(raw_ptr) }; // will be freed
+<pre><code>&gt;     let boxed = Box::new(String::from("Crab"));let raw_ptr = unsafe { Box::into_raw(boxed) };
+&gt;     let boxed = Box::new(String::from("Crab"));```
+</code></pre>
+<pre><code>let raw_ptr = unsafe { Box::into_raw(boxed) };let _ = unsafe { Box::from_raw(raw_ptr) }; // will be freed
+let raw_ptr = unsafe { Box::into_raw(boxed) };```
 </code></pre>
 <blockquote>
 <pre><code></code></pre>
@@ -1078,18 +1080,21 @@ and, for <code>Box</code> smart pointers, conversion of C pointers into <code>Bo
 complicated than re-boxing the raw pointer and should be avoided:</p>
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
-</span>    // Excerpt from the standard library documentation
+</span>// Excerpt from the standard library documentation
 <span class="boring">}</span></code></pre></pre>
 </blockquote>
-<pre><code>use std::alloc::{Layout, dealloc};
-use std::ptr;
-
-let x = Box::new(String::from("Hello"));
-let p = Box::into_raw(x);
-unsafe {
-    ptr::drop_in_place(p);
-    dealloc(p as *mut u8, Layout::new::&lt;String&gt;());
-}
+<pre><code>&gt;     // Excerpt from the standard library documentationuse std::alloc::{Layout, dealloc};
+&gt;     // Excerpt from the standard library documentation```
+</code></pre>
+<pre><code>use std::alloc::{Layout, dealloc};use std::ptr;
+use std::alloc::{Layout, dealloc};
+use std::alloc::{Layout, dealloc};let x = Box::new(String::from("Hello"));
+use std::alloc::{Layout, dealloc};let p = Box::into_raw(x);
+use std::alloc::{Layout, dealloc};unsafe {
+use std::alloc::{Layout, dealloc};   ptr::drop_in_place(p);
+use std::alloc::{Layout, dealloc};   dealloc(p as *mut u8, Layout::new::&lt;String&gt;());
+use std::alloc::{Layout, dealloc};}
+use std::alloc::{Layout, dealloc};```
 </code></pre>
 <blockquote>
 <pre><code>
@@ -1123,25 +1128,25 @@ the use of <code>Drop</code> to erase sensitive memory.</p>
 <h2 id="cyclic-reference-counted-pointers-rc-and-arc"><a class="header" href="#cyclic-reference-counted-pointers-rc-and-arc">Cyclic reference counted pointers (<code>Rc</code> and <code>Arc</code>)</a></h2>
 <p>Combining <a href="https://doc.rust-lang.org/reference/interior-mutability.html">interior mutability</a>, recursivity and reference counted pointer into type definitions is unsafe. It can produce memory leaks which can result in DDoS attacks or leaking secrets.</p>
 <p>The following example shows such a memory leak in safe Rust:</p>
-<pre><pre class="playground"><code class="language-rust">    use std::{cell::Cell, rc::Rc};
+<pre><pre class="playground"><code class="language-rust">use std::{cell::Cell, rc::Rc};
 
-    struct LinkedStruct {
-        other: Cell&lt;Option&lt;Rc&lt;LinkedStruct&gt;&gt;&gt;,
-    }
+struct LinkedStruct {
+   other: Cell&lt;Option&lt;Rc&lt;LinkedStruct&gt;&gt;&gt;,
+}
 
-    fn main() {
-        println!("Hello, world!");
-        let a = Rc::new(LinkedStruct {
-            other: Cell::new(None),
-        });
-        let b = Rc::new(LinkedStruct {
-            other: Cell::new(None),
-        });
-        let aa = a.clone();
-        let bb = b.clone();
-        a.other.set(Some(bb));
-        b.other.set(Some(aa));
-    }</code></pre></pre>
+fn main() {
+   println!("Hello, world!");
+   let a = Rc::new(LinkedStruct {
+      other: Cell::new(None),
+   });
+   let b = Rc::new(LinkedStruct {
+      other: Cell::new(None),
+   });
+   let aa = a.clone();
+   let bb = b.clone();
+   a.other.set(Some(bb));
+   b.other.set(Some(aa));
+}</code></pre></pre>
 <p>Memory leak is shown with <code>valgrind</code>:</p>
 <pre><code>$ valgrind --leak-check=full target/release/safe-rust-leak 
 ==153637== Memcheck, a memory error detector
@@ -1191,7 +1196,7 @@ a standard C calling convention on the target platform.</p>
 </span>/// Export C-compatible function
 #[unsafe(no_mangle)]
 extern "C" fn mylib_f(param: u32) -&gt; i32 {
-    if param == 0xCAFEBABE { 0 } else { -1 }
+   if param == 0xCAFEBABE { 0 } else { -1 }
 }
 <span class="boring">}</span></code></pre></pre>
 <p>For the function <code>mylib_f</code> to be accessible with the same name, the function
@@ -1203,12 +1208,12 @@ must also be annotated with the <code>#[unsafe(no_mangle)]</code> attribute.</p>
 </span>use std::os::raw::c_int;
 // import C function
 unsafe extern "C" {
-    fn abs(args: c_int) -&gt; c_int;
+   fn abs(args: c_int) -&gt; c_int;
 }
 
 fn use_abs() {
-    let x = -1;
-    println!("{} {}\n", x, unsafe { abs(x) });
+   let x = -1;
+   println!("{} {}\n", x, unsafe { abs(x) });
 }
 <span class="boring">}</span></code></pre></pre>
 <blockquote>
@@ -1225,20 +1230,20 @@ with the <code>static</code> keyword:</p>
 // should not be used! Not thread safe, have a look at `std::env`!
 
 unsafe extern "C" {
-    // Global variable
-    #[link_name = "environ"]
-    static libc_environ: *const *const std::os::raw::c_char;
+   // Global variable
+   #[link_name = "environ"]
+   static libc_environ: *const *const std::os::raw::c_char;
 }
 
 fn use_static_extern() {
-    let mut next = unsafe { libc_environ };
-    while !next.is_null() &amp;&amp; !unsafe { *next }.is_null() {
-        let env = unsafe { std::ffi::CStr::from_ptr(*next) }
-            .to_str()
-            .unwrap_or("&lt;invalid&gt;");
-        println!("{}", env);
-        next = unsafe { next.offset(1) };
-    }
+   let mut next = unsafe { libc_environ };
+   while !next.is_null() &amp;&amp; !unsafe { *next }.is_null() {
+      let env = unsafe { std::ffi::CStr::from_ptr(*next) }
+         .to_str()
+         .unwrap_or("&lt;invalid&gt;");
+      println!("{}", env);
+      next = unsafe { next.offset(1) };
+   }
 }
 <span class="boring">}</span></code></pre></pre>
 <h2 id="typing"><a class="header" href="#typing">Typing</a></h2>
@@ -1255,29 +1260,29 @@ types:</p>
 </span><span class="boring">fn main() {
 </span>#[repr(C)]
 struct Data {
-    a: u32,
-    b: u16,
-    c: u64,
+   a: u32,
+   b: u16,
+   c: u64,
 }
 #[repr(C, packed)]
 struct PackedData {
-    a: u32,
-    b: u16,
-    c: u64,
+   a: u32,
+   b: u16,
+   c: u64,
 }
 <span class="boring">}</span></code></pre></pre>
 <p>are compatible with the following C types:</p>
 <pre><code class="language-c">struct Data
 {
-	uint32_t a;
-	uint16_t b;
-	uint64_t c;
+   uint32_t a;
+   uint16_t b;
+   uint64_t c;
 };
 __attribute__((packed)) struct PackedData
 {
-	uint32_t a;
-	uint16_t b;
-	uint64_t c;
+   uint32_t a;
+   uint16_t b;
+   uint64_t c;
 };
 </code></pre>
 <blockquote>
@@ -1503,11 +1508,11 @@ function:</p>
 <pre><code class="language-rust noplaypen">/// Add in place
 #[unsafe(no_mangle)]
 unsafe extern "C" fn add_in_place(a: *mut u32, b: u32) {
-    // checks for nullity of `a`
-    // and takes a mutable reference on it if it's non-null
-    if let Some(a) = unsafe { a.as_mut() } {
-        *a += b
-    }
+   // checks for nullity of `a`
+   // and takes a mutable reference on it if it's non-null
+   if let Some(a) = unsafe { a.as_mut() } {
+      *a += b
+   }
 }</code></pre>
 <p>Note that the methods <code>as_ref</code> and <code>as_mut</code> (for mutable pointers) allows easy
 access to a reference while ensuring a null check in a very <em>Rusty</em> way.
@@ -1520,10 +1525,10 @@ void add_in_place(uint32_t *a, uint32_t b);
 
 int use_add_in_place()
 {
-	uint32_t x = 25;
-	add_in_place(&amp;x, 17);
-	printf("%" PRIu32 " == 42", x);
-	return 0;
+   uint32_t x = 25;
+   add_in_place(&amp;x, 17);
+   printf("%" PRIu32 " == 42", x);
+   return 0;
 }
 </code></pre>
 <blockquote>
@@ -1553,26 +1558,25 @@ possibilities:</p>
 <pre><code class="language-rust noplaypen">#[unsafe(no_mangle)]</code></pre>
 </li>
 </ul>
-<p>pub unsafe extern "C" fn repeat(
-start: u32,
-n: u32,
-f: Option&lt;unsafe extern "C" fn(u32) -&gt; u32&gt;,
+<p>pub unsafe extern "C" fn repeat(</p>
+<pre><code>pub unsafe extern "C" fn repeat(start: u32,
+pub unsafe extern "C" fn repeat(n: u32,
+pub unsafe extern "C" fn repeat(f: Option&lt;unsafe extern "C" fn(u32) -&gt; u32&gt;,
+pub unsafe extern "C" fn repeat(```
 ) -&gt; u32 {
-if let Some(f) = f {
-let mut value = start;
-for _ in 0..n {
-value = unsafe { f(value) };
+    if let Some(f) = f {
+        let mut value = start;
+        for _ in 0..n {
+            value = unsafe { f(value) };
+        }
+        value
+    } else {
+        start
+    }
 }
-value
-} else {
-start
-}
-}</p>
-<pre><code>
-On the C side:
-
-```c
-uint32_t repeat(uint32_t start, uint32_t n, uint32_t (*f)(uint32_t));
+</code></pre>
+<p>On the C side:</p>
+<pre><code class="language-c">uint32_t repeat(uint32_t start, uint32_t n, uint32_t (*f)(uint32_t));
 </code></pre>
 <ul>
 <li>use raw pointers with an <code>unsafe</code> transmutation to the function pointer type,
@@ -1624,10 +1628,10 @@ use pointers to dedicated opaque types rather than <code>c_void</code> pointers.
 <p>Currently the recommended way to make a foreign opaque type is like so:</p>
 <pre><code class="language-rust unsafe noplaypen">#[repr(C)]
 pub struct OpaqueFoo {
-    _private: [u8; 0],
+   _private: [u8; 0],
 }
 unsafe extern "C" {
-    fn handle_opaque_foo(arg: *mut OpaqueFoo);
+   fn handle_opaque_foo(arg: *mut OpaqueFoo);
 }</code></pre>
 <p>The not-yet-implemented <a href="https://rust-lang.github.io/rfcs/1861-extern-types.html">RFC 1861</a> proposes to facilitate this encoding by allowing
 to declare opaque types in <code>extern</code> blocks.</p>
@@ -1640,27 +1644,27 @@ a dedicated constructor and destructor.</p>
 </blockquote>
 <p>Example of opaque Rust type:</p>
 <pre><code class="language-rust unsafe noplaypen">pub struct Opaque {
-    // (...) hide details
+   // (...) hide details
 }
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn new_opaque() -&gt; *mut Opaque {
-    catch_unwind(|| // Catch panics, see below
-        Box::into_raw(Box::new(Opaque {
-            // (...) construction
-        })))
-    .unwrap_or(std::ptr::null_mut())
+   catch_unwind(|| // Catch panics, see below
+      Box::into_raw(Box::new(Opaque {
+         // (...) construction
+      })))
+   .unwrap_or(std::ptr::null_mut())
 }
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn destroy_opaque(o: *mut Opaque) {
-    catch_unwind(|| {
-        if !o.is_null() {
-            // only necessary when `Opaque` or any of its fields is `Drop`
-            drop(unsafe { Box::from_raw(o) })
-        }
-    })
-    .unwrap_or_default();
+   catch_unwind(|| {
+      if !o.is_null() {
+         // only necessary when `Opaque` or any of its fields is `Drop`
+         drop(unsafe { Box::from_raw(o) })
+      }
+   })
+   .unwrap_or_default();
 }</code></pre>
 <h2 id="memory-and-resource-management"><a class="header" href="#memory-and-resource-management">Memory and resource management</a></h2>
 <p>Programming languages handle memory in various ways. As a result, it is
@@ -1710,42 +1714,42 @@ through an automatic call to the foreign language deallocation routine.</p>
 <pre><code class="language-rust ignore noplaypen">/// Private “raw” opaque foreign type Foo
 #[repr(C)]
 struct RawFoo {
-    _private: [u8; 0],
+   _private: [u8; 0],
 }
 
 // Private “raw” C API
 unsafe extern "C" {
-    fn foo_create() -&gt; *mut RawFoo;
-    fn foo_do_something(this: *const RawFoo);
-    fn foo_destroy(this: *mut RawFoo);
+   fn foo_create() -&gt; *mut RawFoo;
+   fn foo_do_something(this: *const RawFoo);
+   fn foo_destroy(this: *mut RawFoo);
 }
 
 /// Foo
 pub struct Foo(*mut RawFoo);
 
 impl Foo {
-    /// Create a Foo
-    pub fn new() -&gt; Option&lt;Foo&gt; {
-        let raw_ptr = unsafe { foo_create() };
-        if raw_ptr.is_null() {
-            None
-        } else {
-            Some(Foo(raw_ptr))
-        }
-    }
-
-    /// Do something on a Foo
-    pub fn do_something(&amp;self) {
-        unsafe { foo_do_something(self.0) }
-    }
+   /// Create a Foo
+   pub fn new() -&gt; Option&lt;Foo&gt; {
+      let raw_ptr = unsafe { foo_create() };
+      if raw_ptr.is_null() {
+         None
+      } else {
+         Some(Foo(raw_ptr))
+      }
+   }
+   
+   /// Do something on a Foo
+   pub fn do_something(&amp;self) {
+      unsafe { foo_do_something(self.0) }
+   }
 }
 
 impl Drop for Foo {
-    fn drop(&amp;mut self) {
-        if !self.0.is_null() {
-            unsafe { foo_destroy(self.0) }
-        }
-    }
+   fn drop(&amp;mut self) {
+      if !self.0.is_null() {
+         unsafe { foo_destroy(self.0) }
+      }
+   }
 }</code></pre>
 <div class="warning">
 <p>Because panics may lead to not running the <code>Drop::drop</code> method this solution
@@ -1765,81 +1769,81 @@ reclamation:</p>
 <pre><code class="language-rust noplaypen">pub struct XtraResource {/* fields */}
 
 impl XtraResource {
-    pub fn new() -&gt; Self {
-        XtraResource { /* ... */ }
-    }
-    pub fn dosthg(&amp;mut self) {
-        /* ... */
-    }
+   pub fn new() -&gt; Self {
+      XtraResource { /* ... */ }
+   }
+   pub fn dosthg(&amp;mut self) {
+      /* ... */
+   }
 }
 
 impl Drop for XtraResource {
-    fn drop(&amp;mut self) {
-        println!("xtra drop");
-    }
+   fn drop(&amp;mut self) {
+      println!("xtra drop");
+   }
 }
 
 pub mod c_api {
-    use super::XtraResource;
-    use std::panic::catch_unwind;
-
-    const INVALID_TAG: u32 = 0;
-    const VALID_TAG: u32 = 0xDEAD_BEEF;
-    const ERR_TAG: u32 = 0xDEAF_CAFE;
-
-    static mut COUNTER: u32 = 0;
-
-    pub struct CXtraResource {
-        tag: u32, // to detect accidental reuse
-        id: u32,
-        inner: XtraResource,
-    }
-
-    #[unsafe(no_mangle)]
-    pub unsafe extern "C" fn xtra_with(cb: Option&lt;unsafe extern "C" fn(*mut CXtraResource) -&gt; ()&gt;) {
-        let inner = if let Ok(res) = catch_unwind(XtraResource::new) {
-            res
-        } else {
+   use super::XtraResource;
+   use std::panic::catch_unwind;
+   
+   const INVALID_TAG: u32 = 0;
+   const VALID_TAG: u32 = 0xDEAD_BEEF;
+   const ERR_TAG: u32 = 0xDEAF_CAFE;
+   
+   static mut COUNTER: u32 = 0;
+   
+   pub struct CXtraResource {
+      tag: u32, // to detect accidental reuse
+      id: u32,
+      inner: XtraResource,
+   }
+   
+   #[unsafe(no_mangle)]
+   pub unsafe extern "C" fn xtra_with(cb: Option&lt;unsafe extern "C" fn(*mut CXtraResource) -&gt; ()&gt;) {
+      let inner = if let Ok(res) = catch_unwind(XtraResource::new) {
+         res
+      } else {
+         return;
+      };
+      let id = unsafe { COUNTER };
+      let tag = VALID_TAG;
+      
+      unsafe { COUNTER = COUNTER.wrapping_add(1) };
+      // Use heap memory and do not provide pointer to stack to C code!
+      let mut boxed = Box::new(CXtraResource { tag, id, inner });
+      
+      if let Some(cb) = cb {
+         unsafe { cb(boxed.as_mut() as *mut CXtraResource) };
+      }
+      
+      if boxed.id == id &amp;&amp; (boxed.tag == VALID_TAG || boxed.tag == ERR_TAG) {
+         boxed.tag = INVALID_TAG; // prevent accidental reuse
+      // implicit boxed drop
+      } else {
+         // (...) error handling (should be fatal)
+         boxed.tag = INVALID_TAG; // prevent reuse
+         std::mem::forget(boxed); // boxed is corrupted it should not be
+      }
+   }
+   
+   #[unsafe(no_mangle)]
+   pub unsafe extern "C" fn xtra_dosthg(cxtra: *mut CXtraResource) {
+      let do_it = || {
+         if let Some(cxtra) = unsafe { cxtra.as_mut() }
+            &amp;&amp; cxtra.tag == VALID_TAG
+         {
+            cxtra.inner.dosthg();
             return;
-        };
-        let id = unsafe { COUNTER };
-        let tag = VALID_TAG;
-
-        unsafe { COUNTER = COUNTER.wrapping_add(1) };
-        // Use heap memory and do not provide pointer to stack to C code!
-        let mut boxed = Box::new(CXtraResource { tag, id, inner });
-
-        if let Some(cb) = cb {
-            unsafe { cb(boxed.as_mut() as *mut CXtraResource) };
-        }
-
-        if boxed.id == id &amp;&amp; (boxed.tag == VALID_TAG || boxed.tag == ERR_TAG) {
-            boxed.tag = INVALID_TAG; // prevent accidental reuse
-        // implicit boxed drop
-        } else {
-            // (...) error handling (should be fatal)
-            boxed.tag = INVALID_TAG; // prevent reuse
-            std::mem::forget(boxed); // boxed is corrupted it should not be
-        }
-    }
-
-    #[unsafe(no_mangle)]
-    pub unsafe extern "C" fn xtra_dosthg(cxtra: *mut CXtraResource) {
-        let do_it = || {
-            if let Some(cxtra) = unsafe { cxtra.as_mut() }
-                &amp;&amp; cxtra.tag == VALID_TAG
-            {
-                cxtra.inner.dosthg();
-                return;
-            }
-            println!("do noting with {:p}", cxtra);
-        };
-        if catch_unwind(do_it).is_err()
-            &amp;&amp; let Some(cxtra) = unsafe { cxtra.as_mut() }
-        {
-            cxtra.tag = ERR_TAG;
-        };
-    }
+         }
+         println!("do noting with {:p}", cxtra);
+      };
+      if catch_unwind(do_it).is_err()
+         &amp;&amp; let Some(cxtra) = unsafe { cxtra.as_mut() }
+      {
+         cxtra.tag = ERR_TAG;
+      };
+   }
 }</code></pre>
 <p>A compatible C call:</p>
 <pre><code class="language-c">struct XtraResource;
@@ -1848,13 +1852,13 @@ void xtra_sthg(struct XtraResource *xtra);
 
 void cb(struct XtraResource *xtra)
 {
-	// ()...) do anything with the proposed C API for XtraResource
-	xtra_sthg(xtra);
+   // ()...) do anything with the proposed C API for XtraResource
+   xtra_sthg(xtra);
 }
 
 int use_xtra()
 {
-	xtra_with(cb);
+   xtra_with(cb);
 }
 </code></pre>
 <h2 id="panics-with-foreign-code"><a class="header" href="#panics-with-foreign-code">Panics with foreign code</a></h2>
@@ -1871,16 +1875,16 @@ abort or return in an unstable state.</p>
 <p>Note that <code>catch_unwind</code> will only catch unwinding panics, not those that abort
 the process.</p>
 <pre><code class="language-rust unsafe noplaypen ignore">fn may_panic() {
-    /* Something may panic... */
+   /* Something may panic... */
 }
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn no_panic() -&gt; i32 {
-    let result = catch_unwind(may_panic);
-    match result {
-        Ok(_) =&gt; 0,
-        Err(_) =&gt; -1,
-    }
+   let result = catch_unwind(may_panic);
+   match result {
+      Ok(_) =&gt; 0,
+      Err(_) =&gt; -1,
+   }
 }</code></pre>
 <h3 id="no_std"><a class="header" href="#no_std"><code>no_std</code></a></h3>
 <p>In the case of <code>#![no_std]</code> program, a panic handler (<code>#[panic_handler]</code>) must
@@ -1922,58 +1926,58 @@ the Rust C-compatible API of a Rust library.</p>
 pub struct Counter(u32);
 
 impl Counter {
-    /// Create a counter (initially at 0)
-    fn new() -&gt; Self {
-        Self(0)
-    }
-    /// Get the current value of the counter
-    fn get(&amp;self) -&gt; u32 {
-        self.0
-    }
-    /// Increment the value of the counter if there's no overflow
-    fn incr(&amp;mut self) -&gt; bool {
-        if let Some(n) = self.0.checked_add(1) {
-            self.0 = n;
-            true
-        } else {
-            false
-        }
-    }
+   /// Create a counter (initially at 0)
+   fn new() -&gt; Self {
+      Self(0)
+   }
+   /// Get the current value of the counter
+   fn get(&amp;self) -&gt; u32 {
+      self.0
+   }
+   /// Increment the value of the counter if there's no overflow
+   fn incr(&amp;mut self) -&gt; bool {
+      if let Some(n) = self.0.checked_add(1) {
+         self.0 = n;
+         true
+      } else {
+         false
+      }
+   }
 }
 
 // C-compatible API
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn counter_create() -&gt; *mut Counter {
-    Box::into_raw(Box::new(Counter::new()))
+   Box::into_raw(Box::new(Counter::new()))
 }
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn counter_incr(counter: *mut Counter) -&gt; std::os::raw::c_int {
-    if let Some(counter) = unsafe { counter.as_mut() } {
-        if counter.incr() { 0 } else { -1 }
-    } else {
-        -2
-    }
+   if let Some(counter) = unsafe { counter.as_mut() } {
+      if counter.incr() { 0 } else { -1 }
+   } else {
+      -2
+   }
 }
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn counter_get(counter: *const Counter) -&gt; u32 {
-    if let Some(counter) = unsafe { counter.as_ref() } {
-        counter.get()
-    } else {
-        0
-    }
+   if let Some(counter) = unsafe { counter.as_ref() } {
+      counter.get()
+   } else {
+      0
+   }
 }
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn counter_destroy(counter: *mut Counter) -&gt; std::os::raw::c_int {
-    if !counter.is_null() {
-        let _ = unsafe { Box::from_raw(counter) }; // get box and drop
-        0
-    } else {
-        -1
-    }
+   if !counter.is_null() {
+      let _ = unsafe { Box::from_raw(counter) }; // get box and drop
+      0
+   } else {
+      -1
+   }
 }</code></pre>
 <p>Using <a href="https://crates.io/crates/cbindgen">cbindgen</a> (<code>[cbindgen] -l c &gt; counter.h</code>), one can generate a consistent
 C header, <code>counter.h</code>:</p>
@@ -2002,27 +2006,27 @@ int counter_incr(Counter *counter);
 
 int main(int argc, const char **argv)
 {
-	if (argc &lt; 2)
-	{
-		return -1;
-	}
-	size_t n = (size_t)strtoull(argv[1], NULL, 10);
-
-	Counter *c = counter_create();
-	for (size_t i = 0; i &lt; n; i++)
-	{
-		if (counter_incr(c) != 0)
-		{
-			printf("overflow\n");
-			counter_destroy(c);
-			return -1;
-		}
-	}
-
-	printf("%" PRIu32 "\n", counter_get(c));
-	counter_destroy(c);
-
-	return 0;
+   if (argc &lt; 2)
+   {
+      return -1;
+   }
+   size_t n = (size_t)strtoull(argv[1], NULL, 10);
+   
+   Counter *c = counter_create();
+   for (size_t i = 0; i &lt; n; i++)
+   {
+      if (counter_incr(c) != 0)
+      {
+         printf("overflow\n");
+         counter_destroy(c);
+         return -1;
+      }
+   }
+   
+   printf("%" PRIu32 "\n", counter_get(c));
+   counter_destroy(c);
+   
+   return 0;
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="standard-library"><a class="header" href="#standard-library">Standard library</a></h1>
@@ -2226,7 +2230,7 @@ providing that each subtype is <code>Ord</code>.</li>
 All the assertions hold.</p>
 <pre><pre class="playground"><code class="language-rust">#[derive(PartialEq, Eq, PartialOrd, Ord)]
 struct T1 {
-    a: u8, b: u8
+   a: u8, b: u8
 }
 
 <span class="boring">fn main() {

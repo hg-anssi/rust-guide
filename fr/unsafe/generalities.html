@@ -290,22 +290,21 @@ bugs en général, d'<em>UB</em> en particulier.</p>
 </span>use std::ptr;
 
 pub struct Vec&lt;T&gt; {
-    ptr: *mut T,
-    len: usize,
-    cap: usize,
+   ptr: *mut T,
+   len: usize,
+   cap: usize,
 }
 
 // Note this implementation does not correctly handle zero-sized types.
 impl&lt;T&gt; Vec&lt;T&gt; {
-    pub fn push(&amp;mut self, elem: T) {
-        if self.len == self.cap { /* reallocate new array with bigger capacity */ }
-        unsafe {
-            ptr::write(self.ptr.add(self.len), elem);
-            self.len += 1;
-        }
-    }
+   pub fn push(&amp;mut self, elem: T) {
+      if self.len == self.cap { /* reallocate new array with bigger capacity */ }
+      unsafe {
+         ptr::write(self.ptr.add(self.len), elem);
+         self.len += 1;
+      }
+   }
 }
-
 <span class="boring">}</span></code></pre></pre>
 <p>La sûreté de ce code repose sur plusieurs invariants, dont l'un stipule que
 la plage d'octets allant de <code>self.ptr</code> à <code>self.ptr + self.cap * size_of&lt;T&gt;()</code> est allouée.</p>
@@ -313,10 +312,10 @@ la plage d'octets allant de <code>self.ptr</code> à <code>self.ptr + self.cap *
 <pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl&lt;T&gt; Vec&lt;T&gt; {
-    fn make_room(&amp;mut self) {
-        // grow the capacity
-        self.cap += 1;
-    }
+   fn make_room(&amp;mut self) {
+      // grow the capacity
+      self.cap += 1;
+   }
 }
 <span class="boring">}</span></code></pre></pre>
 <p>Si elle peut être tout à fait légitime pour du code <em>interne</em> à l'API,
@@ -329,26 +328,26 @@ Dans un composant logiciel, le code <code>unsafe</code> doit être écrit de man
 On souhaite ici proposer une API générique permettant de localiser un objet dans une zone mémoire.
 On demande donc à l'utilisateur de l'API de fournir une implémentation à ce trait :</p>
 <pre><code class="language-rust ignore">trait Locatable {
-    /// Find object of type `Self` in the buffer `buf`.
-    /// Returns the index of the first byte representing
-    /// an object of type `Self`
-    fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt;;
+   /// Find object of type `Self` in the buffer `buf`.
+   /// Returns the index of the first byte representing
+   /// an object of type `Self`
+   fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt;;
 }
 
 fn find&lt;T: Locatable&gt;(buf: &amp;[u8]) -&gt; Option&lt;T&gt; {
-    let start = T::locate_instance_into(buf)?;
-    unsafe {
-        let ptr: *const T = buf.as_ptr().add(start).cast();
-        Some(ptr.read_unaligned())
-    }
+   let start = T::locate_instance_into(buf)?;
+   unsafe {
+      let ptr: *const T = buf.as_ptr().add(start).cast();
+      Some(ptr.read_unaligned())
+   }
 }</code></pre>
 <p>L'implémentation d'un tel trait peut être réalisée en utilisant du code <strong>sans</strong> <code>unsafe</code>.</p>
 <p>Par exemple, on peut implémenter ce trait pour le type <code>bool</code> comme suit :</p>
-<pre><code class="language-rust ignore">    impl Locatable for bool {
-        fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt; {
-            buf.iter().position(|u| *u == 0 || *u == 1)
-        }
-    }</code></pre>
+<pre><code class="language-rust ignore">impl Locatable for bool {
+   fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt; {
+      buf.iter().position(|u| *u == 0 || *u == 1)
+   }
+}</code></pre>
 <div class="warning">
 <p>Cette implémentation est mauvaise pour deux raisons :</p>
 <ul>
@@ -357,42 +356,42 @@ fn find&lt;T: Locatable&gt;(buf: &amp;[u8]) -&gt; Option&lt;T&gt; {
 </ul>
 </div>
 <p>Par exemple, cette implémentation de <code>Locatable</code> est fautive mais n'est pas <code>unsafe</code> :</p>
-<pre><code class="language-rust ignore">    impl Locatable for bool {
-        fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt; {
-            buf.iter().position(|u| *u == 0 || *u == 1).map(|n| n + 100)
-        }
-    }</code></pre>
+<pre><code class="language-rust ignore">impl Locatable for bool {
+   fn locate_instance_into(buf: &amp;[u8]) -&gt; Option&lt;usize&gt; {
+      buf.iter().position(|u| *u == 0 || *u == 1).map(|n| n + 100)
+   }
+}</code></pre>
 <p>L'exécution du programme suivant produit un <em>UB</em> :</p>
-<pre><code class="language-rust ignore">    fn use_locatable() {
-        let buf = [4, 1, 99];
-        let located_bool: Option&lt;bool&gt; = find(&amp;buf); // UB here!
-        println!("{:?}", located_bool)
-    }</code></pre>
+<pre><code class="language-rust ignore">fn use_locatable() {
+   let buf = [4, 1, 99];
+   let located_bool: Option&lt;bool&gt; = find(&amp;buf); // UB here!
+   println!("{:?}", located_bool)
+}</code></pre>
 <p>Voici le retour obtenu avec l'outil de détection de comportement indéfini <code>miri</code> :</p>
 <pre><code class="language-default">$ cargo +nightly miri r --bin overflow
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
-     Running `/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo-miri runner target/miri/x86_64-unknown-linux-gnu/debug/overflow`
+   Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+      Running `/home/user/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/cargo-miri runner target/miri/x86_64-unknown-linux-gnu/debug/overflow`
 error: Undefined Behavior: in-bounds pointer arithmetic failed: attempting to offset pointer by 101 bytes, but got alloc249 which is only 3 bytes from the end of the allocation
-  --&gt; src/overflow.rs:16:29
-   |
+   --&gt; src/overflow.rs:16:29
+      |
 16 |         let ptr: *const T = buf.as_ptr().add(start).cast();
    |                             ^^^^^^^^^^^^^^^^^^^^^^^ Undefined Behavior occurred here
    |
    = help: this indicates a bug in the program: it performed an invalid operation, and caused Undefined Behavior
    = help: see https://doc.rust-lang.org/nightly/reference/behavior-considered-undefined.html for further information
 help: alloc249 was allocated here:
-  --&gt; src/overflow.rs:22:9
-   |
+   --&gt; src/overflow.rs:22:9
+      |
 22 |     let buf = [4, 1, 99];
    |         ^^^
    = note: BACKTRACE (of the first span):
    = note: inside `find::&lt;bool&gt;` at src/overflow.rs:16:29: 16:52
 note: inside `main`
-  --&gt; src/overflow.rs:23:38
-   |
+   --&gt; src/overflow.rs:23:38
+      |
 23 |     let located_bool: Option&lt;bool&gt; = find(&amp;buf); // UB here!
    |                                      ^^^^^^^^^^
-
+   
 note: some details are omitted, run with `MIRIFLAGS=-Zmiri-backtrace=full` for a verbose backtrace
 
 error: aborting due to 1 previous error
