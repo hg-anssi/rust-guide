@@ -202,28 +202,6 @@ compilation* de Cargo.
 [cargo]: https://doc.rust-lang.org/stable/cargo/
 [cargo book]: https://doc.rust-lang.org/cargo/index.html
 
-### Clippy
-
-[Clippy] est un outil permettant la vérification de nombreux *lints* (*bugs*,
-style et lisibilité du code, problèmes de performances, etc.). Depuis la chaîne
-d'outils stable en version 1.29, `clippy` peut être installé dans
-l'environnement `rustup` stable. Il est aussi recommandé d'installer `clippy` en
-tant que composant (`rustup component add clippy`) dans la chaîne d'outils
-stable plutôt que de l'installer comme une dépendance de chaque projet.
-
-L'outil fournit plusieurs catégories de *lints*, selon le type de problème qu'il
-vise à détecter dans le code. Les avertissements doivent être revérifiés par le
-développeur avant d'appliquer la réparation suggérée par `clippy`, en
-particulier dans le cas des *lints* de la catégorie `clippy::nursery` puisque
-ceux-ci sont encore en cours de développement et de mise au point.
-
-> **Règle {{#check DENV-LINTER | Utilisation régulière d'un *linter*}}**
->
-> Un *linter* comme `clippy` doit être utilisé régulièrement tout au long du
-> développement d'une application sécurisée.
-
-[clippy]: https://github.com/rust-lang/rust-clippy
-
 ### Rustfmt
 
 [Rustfmt] est un outil offrant la possibilité de formater du code en fonction
@@ -302,13 +280,37 @@ configuration, certaines réparations (comme celles proposées avec l'option
 `--edition-idioms`) sont connues pour casser la compilation ou pour modifier
 la sémantique d'un programme dans certains cas.
 
+[rustfix]: https://github.com/rust-lang-nursery/rustfix
+
+### Clippy
+
+[Clippy] est un outil permettant la vérification de nombreux *lints* (*bugs*,
+style et lisibilité du code, problèmes de performances, etc.). Depuis la chaîne
+d'outils stable en version 1.29, `clippy` peut être installé dans
+l'environnement `rustup` stable. Il est aussi recommandé d'installer `clippy` en
+tant que composant (`rustup component add clippy`) dans la chaîne d'outils
+stable plutôt que de l'installer comme une dépendance de chaque projet.
+
+L'outil fournit plusieurs catégories de *lints*, selon le type de problème qu'il
+vise à détecter dans le code. Les avertissements doivent être revérifiés par le
+développeur avant d'appliquer la réparation suggérée par `clippy`, en
+particulier dans le cas des *lints* de la catégorie `clippy::nursery` puisque
+ceux-ci sont encore en cours de développement et de mise au point.
+
+`clippy` dispose maintenant d'un outils `fix` similaire à celui de `rustfix`.
+
+[clippy]: https://github.com/rust-lang/rust-clippy
+
+> **Règle {{#check DENV-LINTER | Utilisation régulière d'un *linter*}}**
+>
+> Un *linter* comme `clippy` doit être utilisé régulièrement tout au long du
+> développement d'une application sécurisée.
+
 > **Règle {{#check DENV-AUTOFIX | Vérification manuelle des réparations automatiques}}**
 >
 > Dans le cadre du développement d'une application sécurisée, toute réparation
-> automatique (comme celles appliquées par `rustfix` par exemple) doit être
+> automatique (comme celles appliquées par `rustfix` ou `clippy` par exemple) doit être
 > vérifiée par le développeur.
-
-[rustfix]: https://github.com/rust-lang-nursery/rustfix
 
 ### Autres
 
