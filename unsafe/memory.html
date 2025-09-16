@@ -197,14 +197,14 @@ scope, Rust provides special functions to manually reclaim memory: <code>forget<
 <code>drop</code> of the <code>std::mem</code> module (or <code>core::mem</code>). While <code>drop</code> simply triggers
 an early memory reclamation that calls associated destructors when needed,
 <code>forget</code> skips any call to the destructors.</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+<pre><pre class="playground"><code class="language-rust align"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>let pair = ('↑', 0xBADD_CAFEu32);
 drop(pair);
 <span class="boring">}</span></code></pre></pre>
 <p>Both functions are <strong>memory safe</strong> in Rust. However, <code>forget</code> will make any
 resource managed by the value unreachable and unclaimed.</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+<pre><pre class="playground"><code class="language-rust align"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>let s = String::from("Hello");
 forget(s); // Leak memory
@@ -272,16 +272,13 @@ of smart pointers <code>Box</code>, <code>Rc</code>, <code>Arc</code> or <code>W
 </ul>
 <p>must eventually be transformed into a value with a call to the respective
 <code>from_raw</code> to allow for their reclamation.</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+<pre><pre class="playground"><code class="language-rust align"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>let boxed = Box::new(String::from("Crab"));
 <span class="boring">}</span></code></pre></pre>
 </blockquote>
-<pre><code>&gt;     let boxed = Box::new(String::from("Crab"));let raw_ptr = unsafe { Box::into_raw(boxed) };
-&gt;     let boxed = Box::new(String::from("Crab"));```
-</code></pre>
-<pre><code>let raw_ptr = unsafe { Box::into_raw(boxed) };let _ = unsafe { Box::from_raw(raw_ptr) }; // will be freed
-let raw_ptr = unsafe { Box::into_raw(boxed) };```
+<pre><code>let raw_ptr = unsafe { Box::into_raw(boxed) };
+let _ = unsafe { Box::from_raw(raw_ptr) }; // will be freed
 </code></pre>
 <blockquote>
 <pre><code></code></pre>
@@ -298,23 +295,20 @@ and, for <code>Box</code> smart pointers, conversion of C pointers into <code>Bo
 <p><strong>Note</strong></p>
 <p>In the case of <code>Box::into_raw</code>, manual cleanup is possible but a lot more
 complicated than re-boxing the raw pointer and should be avoided:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+<pre><pre class="playground"><code class="language-rust align"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// Excerpt from the standard library documentation
 <span class="boring">}</span></code></pre></pre>
 </blockquote>
-<pre><code>&gt;     // Excerpt from the standard library documentationuse std::alloc::{Layout, dealloc};
-&gt;     // Excerpt from the standard library documentation```
-</code></pre>
-<pre><code>use std::alloc::{Layout, dealloc};use std::ptr;
-use std::alloc::{Layout, dealloc};
-use std::alloc::{Layout, dealloc};let x = Box::new(String::from("Hello"));
-use std::alloc::{Layout, dealloc};let p = Box::into_raw(x);
-use std::alloc::{Layout, dealloc};unsafe {
-use std::alloc::{Layout, dealloc};   ptr::drop_in_place(p);
-use std::alloc::{Layout, dealloc};   dealloc(p as *mut u8, Layout::new::&lt;String&gt;());
-use std::alloc::{Layout, dealloc};}
-use std::alloc::{Layout, dealloc};```
+<pre><code>use std::alloc::{Layout, dealloc};
+use std::ptr;
+
+let x = Box::new(String::from("Hello"));
+let p = Box::into_raw(x);
+unsafe {
+    ptr::drop_in_place(p);
+    dealloc(p as *mut u8, Layout::new::&lt;String&gt;());
+}
 </code></pre>
 <blockquote>
 <pre><code>
@@ -348,7 +342,7 @@ the use of <code>Drop</code> to erase sensitive memory.</p>
 <h2 id="cyclic-reference-counted-pointers-rc-and-arc"><a class="header" href="#cyclic-reference-counted-pointers-rc-and-arc">Cyclic reference counted pointers (<code>Rc</code> and <code>Arc</code>)</a></h2>
 <p>Combining <a href="https://doc.rust-lang.org/reference/interior-mutability.html">interior mutability</a>, recursivity and reference counted pointer into type definitions is unsafe. It can produce memory leaks which can result in DDoS attacks or leaking secrets.</p>
 <p>The following example shows such a memory leak in safe Rust:</p>
-<pre><pre class="playground"><code class="language-rust">use std::{cell::Cell, rc::Rc};
+<pre><pre class="playground"><code class="language-rust align">use std::{cell::Cell, rc::Rc};
 
 struct LinkedStruct {
    other: Cell&lt;Option&lt;Rc&lt;LinkedStruct&gt;&gt;&gt;,
