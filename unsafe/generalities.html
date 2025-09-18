@@ -332,7 +332,7 @@ fn find&lt;T: Locatable&gt;(buf: &amp;[u8]) -&gt; Option&lt;T&gt; {
    }
 }</code></pre>
 <div class="warning">
-<p>This implementation is harmful for two reasons:</p>
+<p>This API is harmful for two reasons:</p>
 <ul>
 <li>If the <code>Locatable</code> implementation does not give the index of an object of type <code>T</code>, the <code>read_unaligned</code> may produce UB.</li>
 <li>If the <code>Locatable</code> implementation gives an out-of-bounds index or an index for which part of the object is out of bounds, the subsequent buffer overflow is UB.</li>

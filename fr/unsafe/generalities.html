@@ -349,7 +349,7 @@ fn find&lt;T: Locatable&gt;(buf: &amp;[u8]) -&gt; Option&lt;T&gt; {
    }
 }</code></pre>
 <div class="warning">
-<p>Cette implémentation est mauvaise pour deux raisons :</p>
+<p>Cette API est mauvaise pour deux raisons :</p>
 <ul>
 <li>si l'implémentation de <code>Locatable</code> ne donne pas l'index d'un objet de type <code>T</code>, alors la fonction <code>read_unaligned</code> peut produire un <em>UB</em>.</li>
 <li>si l'implémentation de <code>Locatable</code> renvoie un index en dehors du tableau ou un index tel que l'objet de type <code>T</code> ne soit pas entièrement contenu dans le tableau, alors un dépassement de tableau se produit.</li>
