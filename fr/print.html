@@ -835,7 +835,7 @@ doivent pas reposer uniquement sur l'implémentation du trait <code>Drop</code>.
 </ul>
 <h3 id="déverrouillage-unsafe"><a class="header" href="#déverrouillage-unsafe">Déverrouillage <code>unsafe</code></a></h3>
 <p>Le déverrouillage <code>unsafe</code> est une <strong>prise de responsabilité</strong> sur la sûreté mémoire du programme en développement.</p>
-<p>L'usage d'un bloc <code>unsafe</code> est imposée par le compilateur (<a href="https://doc.rust-lang.org/reference/unsafe-keyword.html#r-unsafe.block">r-unsafe.block</a>) pour empêcher l'usage <em>par inadvertance</em> d'opérations <code>unsafe</code>. Parmi ces opérations, on trouve :</p>
+<p>L'usage d'un bloc <code>unsafe</code> dans le corps d'une fonction ou dans la définition d'une constante est imposé par le compilateur (<a href="https://doc.rust-lang.org/reference/unsafe-keyword.html#r-unsafe.block">r-unsafe.block</a>) pour empêcher l'usage <em>par inadvertance</em> d'opérations <code>unsafe</code>. Parmi ces opérations, on trouve :</p>
 <ul>
 <li>l'utilisation de fonctions marquées unsafe</li>
 <li>la modification de variable mutables statiques</li>

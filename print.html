@@ -765,10 +765,14 @@ The use of this keyword in an API <em>warns</em> the API user about the potentia
 </ul>
 <h3 id="unsafe-unlocking"><a class="header" href="#unsafe-unlocking"><code>unsafe</code> unlocking</a></h3>
 <p>Unlocking with <code>unsafe</code> means taking responsibility for memory safety from the compiler to the developer.</p>
-<p>Using an <code>unsafe</code> block in a function body or in a constant declaration is imposed by the compiler to prevent the <em>inadvertent use</em> of <code>unsafe</code> capabilities.
-The keyword <code>unsafe</code> <em>unlocks</em> the use of these capabilities.</p>
+<p>Using an <code>unsafe</code> block in a function body or in a constant declaration is imposed by the compiler to prevent the <em>inadvertent use</em> of <code>unsafe</code> capabilities like</p>
+<ul>
+<li>using <code>unsafe</code> tagged functions</li>
+<li>modifying static variables</li>
+<li>using extern functions</li>
+</ul>
 <p>Similarly, the implementation of an <code>unsafe</code> trait requires <code>unsafe</code> for the developer to explicitly take into account the memory safety contracts. The keyword <code>unsafe</code> <em>unlocks</em> the implementation of <code>unsafe</code> traits.</p>
-<p>Since the 2024 edition, <code>unsafe</code> is also required to unlock the following:</p>
+<p>Lastly, Since the 2024 edition, <code>unsafe</code> is also required to unlock the following:</p>
 <ul>
 <li><code>extern</code> blocks, which contain declarations of foreign functions and variables, for <a href="unsafe/./ffi.html">FFI</a>,</li>
 <li>some attributes (for instance , no_mangle, cf. <a href="https://doc.rust-lang.org/reference/attributes.html#r-attributes.safety">r-attributes.safety</a>).</li>
